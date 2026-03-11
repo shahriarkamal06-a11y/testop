@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO Meta Tags -->
+    <title>Free Typing Test - Check & Improve Your WPM Speed | TypingSpot</title>
+    <meta name="description"
+        content="Take our free online typing test to check your typing speed and accuracy in 60 seconds. Improve your WPM score with our interactive tool featuring real-time feedback and detailed results analysis.">
+    <meta name="keywords"
+        content="typing test, wpm test, typing speed test, free typing test, online typing practice, check typing speed, typing accuracy, keyboarding test, improve typing speed, words per minute">
+    <meta name="author" content="TypingSpot">
+    <link rel="canonical" href="https://typingspot.online/free-typing-test-online/">
+
+    <!-- Open Graph / Facebook Meta Tags -->
+    <meta property="og:title" content="Free Online Typing Test - Check Your WPM | TypingSpot">
+    <meta property="og:description"
+        content="Measure your typing speed, WPM, and accuracy with our responsive and interactive typing test. Get detailed reports and identify problem keys to type faster.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://typingspot.online/free-typing-test-online/">
+    <meta property="og:site_name" content="TypingSpot">
+    <!-- Note: Add a URL to an image representing your tool for og:image and twitter:image -->
+    <!-- <meta property="og:image" content="https://typingspot.online/path/to/your/image.jpg"> -->
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Free Online Typing Test - Check Your WPM | TypingSpot">
+    <meta name="twitter:description"
+        content="Measure your typing speed, WPM, and accuracy with our responsive and interactive typing test. Get detailed reports and identify problem keys to type faster.">
+    <!-- <meta name="twitter:image" content="https://typingspot.online/path/to/your/image.jpg"> -->
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS Variables --- */
+        :root {
+            /* Main App Colors */
+            --background: #ffffff;
+            --text-color: #333;
+            --sub-text-color: #888;
+            --primary-button-bg: #333;
+            --secondary-button-bg: #f0f2f5;
+            --correct-color: #26a269;
+            --incorrect-color: #e74c3c;
+            --incorrect-bg: #f8d7da;
+            --cursor-color: #333;
+
+            /* Header/Footer Colors & Fonts */
+            --header-bg: #2d3748;
+            --primary-accent-color: #4299e1;
+            /* A nice blue for accents */
+            --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font: 'Roboto Mono', monospace;
+        }
+
+        /* --- General Resets and Body Styling --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #e9e9e9;
+            color: var(--text-color);
+            font-family: var(--font);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 40px 0;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            width: 900px;
+            max-width: 95%;
+            background-color: var(--background);
+            border-radius: 15px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        /* --- Test Finished State --- */
+        .container.test-finished .active::before {
+            display: none;
+        }
+
+        .container.test-finished .header,
+        .container.test-finished .typing-area {
+            display: none;
+        }
+
+        /* --- Header: Time controls and Timer --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time-controls button {
+            background: none;
+            border: none;
+            font-family: var(--font);
+            color: var(--sub-text-color);
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .time-controls button:hover {
+            color: var(--text-color);
+        }
+
+        .time-controls button.active {
+            background-color: var(--primary-button-bg);
+            color: white;
+        }
+
+        .timer {
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+
+        /* --- Typing Text Area --- */
+        .typing-area {
+            line-height: 2.2;
+            font-size: 1.6rem;
+            height: 140px;
+            overflow-y: hidden;
+            position: relative;
+            color: var(--sub-text-color);
+            user-select: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .input-field {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            z-index: 10;
+            cursor: text;
+        }
+
+        .typing-text {
+            transition: margin-top 0.2s linear;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .word {
+            display: inline-flex;
+        }
+
+        .typing-text span {
+            position: relative;
+        }
+
+
+        /* --- Character Styling --- */
+        .correct {
+            color: var(--correct-color) !important;
+        }
+
+        .incorrect {
+            color: var(--incorrect-color) !important;
+            background-color: var(--incorrect-bg);
+            border-radius: 4px;
+        }
+
+        .active::before {
+            content: "";
+            position: absolute;
+            left: -1px;
+            bottom: 2px;
+            height: 80%;
+            width: 2px;
+            background-color: var(--cursor-color);
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* --- Results View Styling (IMPROVED) --- */
+        #results-title {
+            text-align: center;
+            font-size: 1.5rem;
+            /* Larger title */
+            font-weight: 500;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            margin: -10px 0 10px;
+            /* Adjust margin */
+            display: none;
+        }
+
+        .container.test-finished #results-title {
+            display: block;
+        }
+
+        /* General Stats container */
+        .stats {
+            display: grid;
+            gap: 20px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        /* Live stats (during test) */
+        .stats {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .stat-item .value {
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item .label {
+            font-size: 0.9rem;
+            color: var(--sub-text-color);
+            margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+
+        /* Final stats (results screen) are hidden by default */
+        .final-stat {
+            display: none;
+        }
+
+        /* On results screen, hide live stats and show final stats */
+        .container.test-finished .initial-stat {
+            display: none;
+        }
+
+        .container.test-finished .final-stat {
+            display: block;
+        }
+
+        /* IMPROVEMENT: Better grid layout for the results screen */
+        .container.test-finished .stats {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+            border-top: none;
+        }
+
+        .container.test-finished .stat-item {
+            background-color: #f8f9fa;
+            padding: 20px 10px;
+            border-radius: 8px;
+        }
+
+        .container.test-finished .stat-item .value {
+            font-size: 2.2rem;
+            color: var(--primary-button-bg);
+            margin-bottom: 5px;
+        }
+
+        .container.test-finished .stat-item .label {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* IMPROVEMENT: Special styling for Problematic Keys */
+        .problem-keys.stat-item {
+            grid-column: 1 / -1;
+            /* Make this stat span full width */
+            background-color: transparent;
+            padding: 10px 0;
+        }
+
+        .problem-keys .value {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            min-height: 44px;
+            /* Match height of other values */
+        }
+
+        .problem-keys .key {
+            background-color: var(--incorrect-bg);
+            color: var(--incorrect-color);
+            border: 1px solid #f5c6cb;
+            font-family: var(--font);
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 6px;
+            min-width: 35px;
+            text-align: center;
+        }
+
+
+        /* --- Action Buttons --- */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 6;
+        }
+
+        #new-test-btn,
+        #end-test-btn {
+            font-family: var(--font);
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #new-test-btn {
+            background-color: var(--primary-button-bg);
+            color: white;
+            border: 1px solid var(--primary-button-bg);
+        }
+
+        #end-test-btn {
+            margin-right: 15px;
+            background-color: var(--secondary-button-bg);
+            color: var(--text-color);
+            border: 1px solid #ddd;
+        }
+
+        #new-test-btn:hover {
+            background-color: #555;
+        }
+
+        #end-test-btn:hover {
+            background-color: #e2e2e2;
+        }
+
+
+        /* --- Pause Overlay --- */
+        #pause-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        #pause-overlay.visible {
+            opacity: 1;
+        }
+
+        /* --- Header & Footer Styling --- */
+        .main-header {
+            background-color: var(--header-bg);
+            padding: 0 40px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+        }
+
+        .logo {
+            color: #fff;
+            font-family: var(--font-main);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none
+        }
+
+        .logo span {
+            color: var(--primary-accent-color);
+        }
+
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px
+        }
+
+        .main-nav a {
+            color: #a0aec0;
+            text-decoration: none;
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color .2s ease
+        }
+
+        .main-nav a.active,
+        .main-nav a:hover {
+            color: #fff
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px
+        }
+
+        .hamburger .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #fff;
+            border-radius: 5px;
+            transition: all .3s ease-in-out
+        }
+
+        .main-footer {
+            background-color: #e2e8f0;
+            color: var(--sub-text-color);
+            padding: 50px 40px 20px;
+            flex-shrink: 0;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 40px
+        }
+
+        .footer-column .col-title {
+            font-family: var(--font-main);
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-size: 1.1rem
+        }
+
+        .footer-column ul {
+            list-style: none
+        }
+
+        .footer-column li {
+            margin-bottom: 10px
+        }
+
+        .footer-column a {
+            color: var(--sub-text-color);
+            text-decoration: none;
+            transition: color .2s ease
+        }
+
+        .footer-column a:hover {
+            color: var(--primary-button-bg)
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #cbd5e0;
+            padding-top: 20px;
+            text-align: center;
+            font-size: .9rem;
+            max-width: 1200px;
+            margin: 0 auto
+        }
+
+        /* --- START: New SEO Content Styles --- */
+        .content-section {
+            background-color: var(--background);
+            padding: 40px 35px;
+            margin: 40px auto;
+            width: 900px;
+            max-width: 95%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            font-family: var(--font-main);
+            line-height: 1.7;
+        }
+
+        .content-section h1,
+        .content-section h2,
+        .content-section h3 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .content-section h1 {
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-accent-color);
+            padding-bottom: 20px;
+        }
+
+        .content-section h2 {
+            font-size: 1.8rem;
+            margin-top: 40px;
+            border-left: 4px solid var(--primary-accent-color);
+            padding-left: 15px;
+        }
+
+        .content-section h3 {
+            font-size: 1.4rem;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        .content-section p {
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .content-section ul,
+        .content-section ol {
+            margin-left: 20px;
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        .content-section li {
+            margin-bottom: 10px;
+        }
+
+        .content-section a {
+            color: var(--primary-accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .content-section a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- END: New SEO Content Styles --- */
+
+        /* --- Responsive Design --- */
+        @media (max-width:768px) {
+            .main-header {
+                padding: 0 20px;
+                height: 70px
+            }
+
+            body {
+                padding-top: 70px;
+            }
+
+            .main-nav {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: var(--header-bg);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, .1)
+            }
+
+            .main-nav.is-active {
+                display: flex
+            }
+
+            .main-nav ul {
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+                gap: 15px
+            }
+
+            .hamburger {
+                display: flex
+            }
+
+            .hamburger.is-active .bar:nth-child(2) {
+                opacity: 0
+            }
+
+            .hamburger.is-active .bar:nth-child(1) {
+                transform: translateY(8px) rotate(45deg)
+            }
+
+            .hamburger.is-active .bar:nth-child(3) {
+                transform: translateY(-8px) rotate(-45deg)
+            }
+
+            .main-footer {
+                padding: 40px 20px 20px
+            }
+
+            .container.test-finished .stats {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .content-section h1 {
+                font-size: 1.8rem;
+            }
+
+            .content-section h2 {
+                font-size: 1.5rem;
+            }
+
+            .content-section h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .container {
+                padding: 25px 20px;
+            }
+
+            .typing-area {
+                font-size: 1.3rem;
+                height: 115px;
+                /* Adjust height for smaller font */
+            }
+
+            .stat-item .value {
+                font-size: 2rem;
+            }
+
+            .container.test-finished .stat-item .value {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="main-header">
+        <a href="https://typingspot.online/" class="logo">Typing<span>Spot</span></a>
+        <nav class="main-nav" id="main-navigation">
+            <ul>
+                <li><a href="https://typingspot.online/">Home</a></li>
+                <li><a href="https://typingspot.online/free-typing-test-online" class="active" aria-current="page">Take The Test</a></li>
+                <li><a href="https://typingspot.online/typing-modes-and-games/">Games & Modes</a></li>
+                <li><a href="https://typingspot.online/contact">Contact</a></li>
+            </ul>
+        </nav>
+        <button class="hamburger" aria-label="Open main menu" aria-controls="main-navigation" aria-expanded="false">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </button>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Pause Overlay -->
+            <div id="pause-overlay">Click or start typing to resume</div>
+
+            <div class="header">
+                <div class="time-controls">
+                    <button data-time="15">15s</button>
+                    <button data-time="30">30s</button>
+                    <button data-time="60" class="active">60s</button>
+                    <button data-time="300">5min</button>
+                </div>
+                <div id="timer" class="timer">60s</div>
+            </div>
+
+            <div class="typing-area">
+                <input type="text" class="input-field" autofocus autocomplete="off" autocorrect="off"
+                    autocapitalize="off" spellcheck="false">
+                <div class="typing-text">
+                    <!-- Paragraph will be loaded here by JavaScript -->
+                </div>
+            </div>
+
+            <div id="results-title">
+                <h2>Results</h2>
+            </div>
+
+            <!-- IMPROVED: Restructured stats section for clarity -->
+            <div class="stats">
+                <!-- During Test -->
+                <div class="stat-item initial-stat">
+                    <div id="wpm" class="value">0</div>
+                    <div class="label">WPM</div>
+                </div>
+                <div class="stat-item initial-stat">
+                    <div id="accuracy" class="value">100%</div>
+                    <div class="label">Accuracy</div>
+                </div>
+                <div class="stat-item initial-stat">
+                    <div id="correct-chars-live" class="value">0</div>
+                    <div class="label">Correct</div>
+                </div>
+                <div class="stat-item initial-stat">
+                    <div id="incorrect-chars-live" class="value">0</div>
+                    <div class="label">Incorrect</div>
+                </div>
+
+                <!-- After Test - Initially Hidden -->
+                <div class="stat-item final-stat" id="wpm-result">
+                    <div class="value">0</div>
+                    <div class="label">WPM</div>
+                </div>
+                <div class="stat-item final-stat" id="accuracy-result">
+                    <div class="value">100%</div>
+                    <div class="label">Accuracy</div>
+                </div>
+                <div class="stat-item final-stat" id="time-taken-result">
+                    <div class="value">60s</div>
+                    <div class="label">Time Taken</div>
+                </div>
+                <div class="stat-item final-stat" id="correct-chars-result">
+                    <div class="value">0</div>
+                    <div class="label">Correct Chars</div>
+                </div>
+                <div class="stat-item final-stat" id="incorrect-chars-result">
+                    <div class="value">0</div>
+                    <div class="label">Incorrect Chars</div>
+                </div>
+                <div class="stat-item final-stat" id="total-chars-result">
+                    <div class="value">0</div>
+                    <div class="label">Total Chars</div>
+                </div>
+                <div class="stat-item final-stat" id="correct-words-result">
+                    <div class="value">0</div>
+                    <div class="label">Correct Words</div>
+                </div>
+                <div class="stat-item final-stat" id="incorrect-words-result">
+                    <div class="value">0</div>
+                    <div class="label">Incorrect Words</div>
+                </div>
+                <div class="stat-item final-stat problem-keys" id="problem-keys-result">
+                    <div class="value">None</div>
+                    <div class="label">Problematic Keys</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="end-test-btn" style="display: none;">End Test</button>
+                <button id="new-test-btn">New Test</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========= START: SEO Content & Blog Post ========= -->
+    <article class="content-section">
+        <h1>Master Your Keyboard: The Ultimate Free Online Typing Test</h1>
+
+        <p>In today's digital world, typing is an essential skill. From writing emails and reports to chatting with
+            friends and coding the next big thing, our fingers are constantly dancing across the keyboard. But how fast
+            and accurate are you? Welcome to the TypingSpot online typing test—a powerful, free tool designed to help
+            you measure, understand, and dramatically improve your typing proficiency.</p>
+
+        <h2>What is a Typing Test and Why Does It Matter?</h2>
+        <p>A typing test is a simple assessment that measures how many words you can accurately type in a specific
+            amount of time. The primary metrics are <strong>Words Per Minute (WPM)</strong> and <strong>Accuracy
+                (%)</strong>. Regularly taking a typing speed test is one of the most effective ways to track your
+            progress and push your limits. A higher WPM score not only saves you time but also boosts productivity in
+            academic and professional settings.</p>
+
+        <h2>How to Use the TypingSpot Test</h2>
+        <p>Getting started is incredibly easy. Our tool is designed to be intuitive and get you typing in seconds.
+        </p>
+        <ol>
+            <li><strong>Select Your Time:</strong> Choose your desired test duration from the options above: 15 seconds
+                for a quick sprint, 30s or 60s for a standard assessment, or 5 minutes for an endurance test.</li>
+            <li><strong>Start Typing:</strong> Click on the text area or simply begin typing the words displayed. The
+                timer will start automatically with your first keystroke.</li>
+            <li><strong>Follow Along:</strong> As you type, correctly typed characters will turn green, while errors
+                will be highlighted in red. The active character is marked by a blinking cursor.</li>
+            <li><strong>Review Your Results:</strong> Once the time is up, your test will automatically conclude, and a
+                detailed results dashboard will appear, giving you a complete breakdown of your performance.</li>
+        </ol>
+
+        <h2>Key Features of Our Typing Speed Test</h2>
+        <p>Our tool is more than just a simple WPM counter. We've packed it with features to provide a comprehensive and
+            effective practice experience.</p>
+
+        <h3>Adjustable Time Limits</h3>
+        <p>Whether you want a quick warm-up or a long practice session, you can choose from 15, 30, 60, and 300-second
+            intervals. This flexibility allows you to train for both speed and stamina.</p>
+
+        <h3>Real-Time Feedback & Live Stats</h3>
+        <p>Don't wait until the end to see how you're doing. During the test, you can monitor your live WPM, accuracy,
+            and correct/incorrect character count. This immediate feedback helps you adjust your pace and focus on
+            accuracy as you type.</p>
+
+        <h3>Infinite Text Mode</h3>
+        <p>Never run out of words to type! Our test automatically appends new paragraphs as you approach the end of the
+            current text. This "infinite scroll" feature ensures a seamless, uninterrupted typing flow, which is perfect
+            for longer tests and focused practice sessions.</p>
+
+        <h3>Comprehensive Results Dashboard</h3>
+        <p>When the test ends, you get more than just a WPM score. Our results screen provides a deep dive into your
+            performance, including:</p>
+        <ul>
+            <li><strong>Final WPM and Accuracy:</strong> Your official scores for the test.</li>
+            <li><strong>Character and Word Counts:</strong> See a breakdown of total, correct, and incorrect characters
+                and words.</li>
+            <li><strong>Time Taken:</strong> The exact duration of your test.</li>
+        </ul>
+
+        <h3>Problematic Key Analysis</h3>
+        <p>This is one of our most powerful features for targeted improvement. The results dashboard identifies and
+            displays the specific keys you mistyped most often. By knowing your "problematic keys," you can consciously
+            focus on hitting them correctly in future practice, leading to rapid gains in accuracy.</p>
+
+        <h2>Tips to Improve Your Typing Speed and Accuracy</h2>
+        <ul>
+            <li><strong>Focus on Accuracy First:</strong> Speed is useless if your text is full of errors. Slow down and
+                concentrate on hitting the right keys. Speed will naturally follow as your accuracy improves.</li>
+            <li><strong>Maintain Good Posture:</strong> Sit up straight, keep your wrists elevated, and place your
+                fingers on the "home row" (ASDF JKL;). Proper ergonomics prevents fatigue and injury.</li>
+            <li><strong>Practice Regularly:</strong> Consistency is key. Even 10-15 minutes of dedicated practice each
+                day can lead to significant improvements over time. Use our free typing test as your daily training
+                ground.</li>
+            <li><strong>Don't Look at the Keyboard:</strong> Train yourself to touch-type. It may feel slow at first,
+                but it is the single most important habit for becoming a fast typist.</li>
+            <li><strong>Analyze Your Results:</strong> Pay close attention to the "Problematic Keys" report after each
+                test and make a mental note to improve on them.</li>
+        </ul>
+        <p>Ready to see what you're capable of? <strong>Start a new test now</strong> and unlock your true typing
+            potential!</p>
+    </article>
+    <!-- ========= END: SEO Content & Blog Post ========= -->
+
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3 class="col-title">TypingSpot</h3>
+                <p>The modern way to test and improve your typing speed and accuracy.</p>
+            </div>
+            <div class="footer-column">
+                <h3 class="col-title">Quick Links</h3>
+                <ul>
+                    <li><a href="https://typingspot.online/free-typing-test-online/">Typing Test</a></li>
+                    <li><a href="https://typingspot.online/typing-modes-and-games/">Games & Modes</a></li>
+                    <li><a href="https://typingspot.online/contact">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3 class="col-title">Legal</h3>
+                <ul>
+                    <li><a href="https://typingspot.online/privacy-policy">Privacy Policy</a></li>
+                    <li><a href="https://typingspot.online/terms-of-service">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3 class="col-title">Follow Us</h3>
+                <ul>
+                    <li><a href="#" target="_blank" rel="noopener noreferrer">Twitter / X</a></li>
+                    <li><a href="#" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="copyright-year"></span> TypingSpot. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            const paragraphs = [
+                "A river cuts through rock not because of its power but because of its persistence. This illustrates the importance of consistent effort over time. Small, steady actions can lead to monumental results, reshaping even the most unyielding obstacles in our path. Keep going.",
+                "Technology has fundamentally revolutionized the way we live, work, and interact with one another. Its impact is undeniable and continues to accelerate at an unprecedented pace, shaping the future in ways we are only beginning to understand.",
+                "Creativity is often described as intelligence having fun. This famous quote encourages us to explore our imaginative side and to not be afraid of thinking outside the conventional boundaries. It is in the joyful process of discovery that true innovation is born.",
+                "To be or not to be, that is the question. These timeless words penned by William Shakespeare in his play Hamlet delve into the profound and universal complexities of life, death, and the very essence of human existence.",
+                "In the middle of every difficulty lies opportunity. It teaches us to look for the silver lining and the potential for growth and positive change, even when we are faced with the most challenging and daunting of situations. Adversity often builds character.",
+                "Growth is never by mere chance; it is the result of forces working together in harmony. Whether in nature or in personal development, progress takes time, intention, and aligned effort. Even the tallest trees were once tiny seeds nurtured with care. Patience and perseverance are key.",
+                "Failure is not the opposite of success; it is a vital part of it. Each setback teaches us valuable lessons and strengthens our resolve. By analyzing our mistakes and improving upon them, we gain the wisdom necessary to move forward. Embrace failure as a stepping stone to greatness.",
+                "Hope is the light that guides us through the darkest times. It keeps us moving when all else seems lost and reminds us that better days are possible. Even a small glimmer of hope can spark the courage needed to overcome immense challenges. Never let go of it.",
+                "Discipline is choosing what you want most over what you want now. It is a daily commitment to long-term goals, often in the face of short-term temptations. This self-control builds the foundation of greatness in every field. With discipline, dreams become realities.",
+                "The human spirit is remarkably resilient, capable of bouncing back from even the deepest wounds. It thrives on belief, love, and purpose. Time and intention help us heal, evolve, and become stronger than before. Inner strength often reveals itself when we need it most.",
+                "True leadership is not about commanding others, but about inspiring them to find their own strength. A great leader listens, guides, and supports, turning vision into shared action. They create an environment where growth is nurtured and potential is realized. Leadership begins with empathy.",
+                "Knowledge is a powerful tool, but wisdom lies in how we use it. It is not enough to collect facts—we must understand their implications and act with insight. Wisdom requires reflection, experience, and a deep sense of responsibility. Only then can knowledge truly serve humanity.",
+                "Change is the only constant in life, and our ability to adapt defines our success. Resistance to change often leads to stagnation, while embracing it opens doors to new possibilities. Growth begins where comfort ends. Let change guide you toward your next evolution.",
+                "Passion fuels the fire that drives extraordinary accomplishments. When you are deeply committed to a cause, the obstacles in your path become part of the journey. Passion gives energy to effort and meaning to struggle. It transforms ordinary actions into powerful purpose.",
+                "Gratitude transforms what we have into enough. It shifts our focus from scarcity to abundance and reminds us of the beauty in everyday moments. Practicing gratitude leads to deeper connections, greater happiness, and a stronger sense of peace. Appreciation magnifies life’s blessings.",
+                "The mind is like a garden—what you plant is what will grow. Thoughts become actions, and actions shape our reality. Cultivating positivity, curiosity, and resilience can lead to a thriving inner world. Be intentional with your mental seeds.",
+                "Courage is not the absence of fear, but the decision that something else is more important. It means taking action even when the outcome is uncertain. Every courageous choice builds confidence and opens doors that fear would keep shut. Bravery begins in the heart.",
+                "Time is the most precious resource we possess, yet it is also the easiest to waste. Unlike money or possessions, once spent, it cannot be replaced. How we use our time reflects our true values and priorities. Make every moment count.",
+                "Innovation thrives at the intersection of curiosity and problem-solving. It requires an open mind, a willingness to experiment, and the patience to fail forward. The greatest breakthroughs often come from asking bold questions. Innovation is fueled by the fearless pursuit of improvement.",
+                "Kindness is a quiet force that leaves a lasting impact. A simple act can brighten a day, shift a perspective, or change a life. In a world that often feels divided, kindness bridges gaps and fosters unity. Be kind—always.",
+                "The power of focus cannot be overstated. When you direct your attention with intention, distractions fall away and productivity soars. Focus brings clarity and depth to your efforts. Mastering it is the key to unlocking extraordinary potential.",
+                "Rest is not laziness—it is essential for growth, clarity, and healing. In a world obsessed with constant hustle, taking time to recharge is a radical act of self-care. Balance fuels sustainable success. Protect your peace to preserve your power.",
+                "Success is not about having more, but about becoming more. It’s a personal journey of development, self-awareness, and contribution. The most meaningful successes are those that align with our values. Define success on your own terms.",
+                "Empathy allows us to understand and share the feelings of others. It deepens relationships, resolves conflict, and fosters compassion. In a connected world, empathy is not just a virtue—it’s a necessity. Walk in someone else’s shoes before judging.",
+                "Your comfort zone is a beautiful place, but nothing ever grows there. Real growth happens when you challenge yourself, take risks, and embrace uncertainty. Every stretch builds strength. Don’t fear discomfort—it’s a sign that transformation is near.",
+                "Words hold power beyond imagination. They can heal or hurt, uplift or destroy, motivate or discourage. Choosing our words carefully is a reflection of our character. Speak with intention, and let your language be a force for good.",
+                "Confidence is built, not born. It grows with every challenge faced, every skill learned, and every failure overcome. It’s not about being perfect but about trusting yourself to figure things out. Confidence is the foundation of bold action.",
+                "Imagination is the spark behind every great invention, story, and dream. It allows us to see what doesn’t yet exist and believe in what others call impossible. Nurturing imagination keeps creativity alive. Never stop dreaming.",
+                "Honesty is the cornerstone of trust. In a world full of facades, truth builds authentic connections and lasting respect. Being honest, even when it’s difficult, is a powerful act of courage. Truth always finds its way to the surface.",
+                "Legacy is not what you leave behind, but how you live every day. It’s built in the small moments of integrity, kindness, and impact. We all have the power to create a lasting ripple. Live in a way worth remembering.",
+                "Success is not determined by the final outcome but by the journey and lessons learned along the way. Each struggle, failure, and effort contributes to the person we become. The process of striving toward our goals refines our character and builds resilience. True success lies in growth, not just achievement.",
+                "Patience is more than just waiting—it’s the calm endurance of life’s trials while maintaining a positive outlook. It teaches us to trust in timing and appreciate the value of persistence. Great things often take time to unfold, and rushing the process can hinder growth. Learn to be still, and let things evolve naturally.",
+                "Every individual has a unique story shaped by their experiences, beliefs, and aspirations. Embracing your own path means respecting your individuality and not comparing yourself to others. The beauty of life lies in our differences and personal growth. Your journey is valid, even if it looks different from someone else’s.",
+                "The future is not something we enter, but something we create with every decision we make today. Every small action builds the foundation for tomorrow’s reality. If we want a better future, we must act with intention and purpose now. The seeds you plant today will become the harvest of your life.",
+                "Your attitude determines the direction of your life far more than your circumstances. A positive mindset can turn setbacks into setups for success. When you choose to see challenges as opportunities, you empower yourself to rise above them. Perspective shapes reality—choose it wisely.",
+                "True friendship is built on mutual trust, loyalty, and understanding. It’s not about how often you see each other, but about the depth of connection you share. Good friends inspire us to grow and support us through every chapter. In a world full of noise, authentic relationships are priceless.",
+                "Clarity comes not from knowing everything, but from understanding what truly matters. When we simplify our goals and remove distractions, our focus becomes sharper and our purpose more defined. Complexity often clouds judgment, while simplicity brings direction. Clear intentions lead to meaningful progress.",
+                "Confidence doesn’t mean having all the answers; it means being willing to try despite the unknown. It's about trusting your ability to figure things out along the way. Each act of courage strengthens your self-belief. You grow when you take bold steps forward, even with shaky hands.",
+                "The habits we form shape our destiny more than any single event. Daily actions, no matter how small, accumulate into powerful results over time. Discipline and consistency create a rhythm that leads to mastery. If you want to change your life, start by changing what you do every day.",
+                "Nature teaches us powerful lessons about growth and renewal. Trees lose their leaves to conserve energy, only to bloom again when the time is right. Similarly, we must learn to let go of what no longer serves us in order to thrive. There is wisdom in every season of life.",
+                "Forgiveness is not a gift to others, but a gift to ourselves. Holding onto anger and resentment only weighs us down and blocks our peace. By releasing the burden, we create space for healing and inner freedom. Forgiveness doesn’t change the past—it transforms the future.",
+                "True happiness comes not from possessions, but from purpose and connection. When we align our lives with what matters most, joy becomes more sustainable. Chasing external validation leads to emptiness, while living authentically brings fulfillment. Happiness begins within.",
+                "The most powerful leaders are those who lead by example. They inspire not through force, but through their integrity, empathy, and actions. Leadership is about service, not status. Influence grows when people see your values in motion.",
+                "Learning never ends; it evolves with us as we grow. Each experience, mistake, and success offers new insights if we remain open-minded. The world is a classroom, and every moment holds the potential for education. A curious mind leads to a rich and meaningful life.",
+                "Adversity is not meant to break us, but to build us. It reveals our hidden strengths and sharpens our inner resolve. The storms we face often prepare us for the blessings we are yet to receive. Strength is forged in struggle, not in comfort.",
+                "Silence can be more powerful than words. In moments of stillness, we find clarity, calm, and insight that noise often drowns out. Listening deeply—both to others and to ourselves—fosters understanding. There is wisdom in the quiet if we choose to hear it.",
+                "Motivation gets you started, but discipline keeps you going. When the excitement fades, it’s your commitment that fuels progress. Goals require consistent action long after the initial inspiration has passed. Discipline turns dreams into achievements.",
+                "Curiosity is the engine of growth and innovation. Asking 'why' and 'what if' opens doors to new ideas and possibilities. When we nurture our sense of wonder, life becomes an adventure of discovery. Stay curious, and the world becomes your playground.",
+                "Integrity is doing the right thing even when no one is watching. It reflects strength of character and builds long-term respect. In a world where shortcuts tempt us, choosing honesty sets us apart. Trust is earned through consistent ethical action.",
+                "Joy is not the absence of pain but the presence of meaning. Even in hard times, we can find moments that uplift and remind us of life’s beauty. Gratitude amplifies these moments and brings balance to our experience. Joy is found in the heart, not in circumstances.",
+                "Perseverance means continuing when it would be easier to quit. It’s the quiet force that keeps us going through uncertainty and fatigue. With each step forward, no matter how small, we build momentum. Great things often happen just beyond the point of giving up.",
+                "Failure is a detour, not a dead end. It redirects us, offering valuable feedback on what doesn’t work. When we use failure as a teacher, it becomes a tool for refinement. Every setback is a setup for a stronger comeback.",
+                "Self-awareness is the foundation of personal growth. Knowing your strengths, weaknesses, and triggers allows you to respond rather than react. It fosters emotional intelligence and empowers mindful choices. The more you understand yourself, the more control you have over your life.",
+                "Dreams remain dreams unless they are backed by action. Vision is the first step, but execution turns potential into progress. Take your aspirations seriously—treat them like responsibilities. Action brings your imagination to life.",
+                "Comparison is the thief of joy. Measuring your worth against others will always leave you feeling behind. Instead, track your growth based on where you were yesterday. Celebrate your progress—it’s proof that you’re moving forward.",
+                "Every challenge holds the seed of transformation. In the midst of struggle lies the opportunity to rebuild stronger, wiser, and more compassionate. Change often begins in discomfort. Embrace it, and let it mold you into something greater.",
+                "The present moment is where life truly happens. Regret dwells in the past, and anxiety lives in the future, but peace is found now. Mindfulness helps us appreciate the richness of each breath and experience. Slow down, and savor the now.",
+                "You don't have to see the entire staircase—just take the first step. Often, clarity comes after movement, not before. Begin with what you know, and trust the path will unfold. Momentum is built through action, not overthinking.",
+                "Creativity thrives when we give ourselves permission to explore without judgment. It's about expressing ideas freely and embracing imperfection. Every act of creation adds value to the world, even if only in small ways. Let your imagination lead the way.",
+                "Purpose gives our lives direction and depth. When we align our actions with our values and passions, everything becomes more meaningful. Purpose doesn’t have to be grand—it just has to be true. Living with purpose brings lasting fulfillment."
+
+            ];
+
+            // --- DOM Elements ---
+            const container = document.querySelector(".container");
+            const typingTextContainer = document.querySelector(".typing-text");
+            const inputField = document.querySelector(".input-field");
+            const newTestBtn = document.getElementById("new-test-btn");
+            const timerEl = document.getElementById("timer");
+            const wpmEl = document.getElementById("wpm");
+            const accuracyEl = document.getElementById("accuracy");
+            const correctCharsLiveEl = document.getElementById("correct-chars-live");
+            const incorrectCharsLiveEl = document.getElementById("incorrect-chars-live");
+            const timeControls = document.querySelector(".time-controls");
+            const pauseOverlay = document.getElementById("pause-overlay");
+            const endTestBtn = document.getElementById("end-test-btn");
+            const resultsTitleEl = document.getElementById("results-title");
+
+
+            // --- State Variables ---
+            let charIndex = 0;
+            let timer;
+            let maxTime = 60;
+            let timeLeft = maxTime;
+            let isTyping = false;
+            let characters;
+            let lastParaIndex = -1;
+            let isAppending = false; // <-- NEW: Flag to prevent multiple appends
+
+            function loadParagraph() {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * paragraphs.length);
+                } while (paragraphs.length > 1 && randomIndex === lastParaIndex);
+                lastParaIndex = randomIndex;
+
+                typingTextContainer.innerHTML = "";
+                const paragraph = paragraphs[randomIndex];
+
+                paragraph.split(" ").forEach(word => {
+                    const wordDiv = document.createElement('div');
+                    wordDiv.className = 'word';
+                    word.split("").forEach(char => {
+                        wordDiv.innerHTML += `<span>${char}</span>`;
+                    });
+                    typingTextContainer.appendChild(wordDiv);
+
+                    const spaceSpan = document.createElement('span');
+                    spaceSpan.classList.add('space');
+                    spaceSpan.innerHTML = ' '; // Non-breaking space
+                    typingTextContainer.appendChild(spaceSpan);
+                });
+
+                if (typingTextContainer.lastChild) {
+                    typingTextContainer.removeChild(typingTextContainer.lastChild);
+                }
+
+                characters = typingTextContainer.querySelectorAll("div.word span, span.space");
+                if (characters.length > 0) {
+                    characters[0].classList.add("active");
+                }
+            }
+
+            // <-- NEW: Function to append a new paragraph without clearing existing text
+            function appendParagraph() {
+                if (isAppending) return; // Prevent concurrent appends
+                isAppending = true;
+
+                // Get a new random paragraph
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * paragraphs.length);
+                } while (paragraphs.length > 1 && randomIndex === lastParaIndex);
+                lastParaIndex = randomIndex;
+                const newParagraph = paragraphs[randomIndex];
+
+                // Add a space before the new paragraph
+                const spaceSpan = document.createElement('span');
+                spaceSpan.classList.add('space');
+                spaceSpan.innerHTML = ' '; // Non-breaking space
+                typingTextContainer.appendChild(spaceSpan);
+
+                // Create and append new words and characters
+                newParagraph.split(" ").forEach(word => {
+                    const wordDiv = document.createElement('div');
+                    wordDiv.className = 'word';
+                    word.split("").forEach(char => {
+                        wordDiv.innerHTML += `<span>${char}</span>`;
+                    });
+                    typingTextContainer.appendChild(wordDiv);
+
+                    const spaceSpan = document.createElement('span');
+                    spaceSpan.classList.add('space');
+                    spaceSpan.innerHTML = ' ';
+                    typingTextContainer.appendChild(spaceSpan);
+                });
+
+                if (typingTextContainer.lastChild) {
+                    typingTextContainer.removeChild(typingTextContainer.lastChild);
+                }
+
+                // IMPORTANT: Update the global character list to include new elements
+                characters = typingTextContainer.querySelectorAll("div.word span, span.space");
+                isAppending = false; // Release the lock
+            }
+
+            function resetTest() {
+                loadParagraph();
+                clearInterval(timer);
+                timeLeft = maxTime;
+                charIndex = 0;
+                isTyping = false;
+
+                timerEl.innerText = timeLeft + 's';
+
+                // Reset LIVE stats to initial state
+                wpmEl.innerText = 0;
+                accuracyEl.innerText = '100%';
+                correctCharsLiveEl.innerText = 0;
+                incorrectCharsLiveEl.innerText = 0;
+
+                inputField.value = "";
+                inputField.disabled = false;
+
+                container.classList.remove('test-finished');
+                pauseOverlay.classList.remove('visible');
+                typingTextContainer.style.marginTop = '0px';
+
+                resultsTitleEl.style.display = "none";
+                endTestBtn.style.display = "none";
+
+                inputField.focus();
+            }
+
+            // <-- MODIFIED: handleTyping now appends text instead of finishing the test
+            function handleTyping() {
+                if (inputField.disabled) return;
+
+                if (!isTyping) {
+                    startTimer();
+                }
+                pauseOverlay.classList.remove('visible');
+
+                const typedValue = inputField.value;
+                const typedLength = typedValue.length;
+
+                for (let i = 0; i < characters.length; i++) {
+                    characters[i].classList.remove("correct", "incorrect", "active");
+                }
+
+                typedValue.split('').forEach((typedChar, index) => {
+                    const characterSpan = characters[index];
+                    if (characterSpan) {
+                        let expectedChar = characterSpan.textContent;
+                        if (characterSpan.classList.contains('space')) {
+                            expectedChar = ' ';
+                        }
+
+                        if (expectedChar === typedChar) {
+                            characterSpan.classList.add("correct");
+                        } else {
+                            characterSpan.classList.add("incorrect");
+                        }
+                    }
+                });
+
+                charIndex = typedLength;
+
+                // --- MODIFICATION START ---
+                // Check if we need to append more text BEFORE handling the cursor
+                if (charIndex > 0 && charIndex < characters.length) {
+                    const activeChar = characters[charIndex];
+                    const typingArea = document.querySelector(".typing-area");
+                    // Trigger append when the user's cursor is within two container heights of the end of the text
+                    const threshold = typingArea.clientHeight * 2;
+                    if (!isAppending && (typingTextContainer.scrollHeight - activeChar.offsetTop) < threshold) {
+                        appendParagraph();
+                    }
+                }
+
+                if (charIndex < characters.length) {
+                    characters[charIndex].classList.add("active");
+                    updateScroll();
+                } else {
+                    // This block now runs if the user types the very last character available.
+                    // Instead of finishing, we append more text and move the cursor.
+                    appendParagraph();
+                    if (characters[charIndex]) {
+                        characters[charIndex].classList.add("active");
+                        updateScroll();
+                    }
+                }
+                // --- MODIFICATION END ---
+
+                updateStats();
+            }
+
+            function updateScroll() {
+                const activeChar = characters[charIndex];
+                if (!activeChar) return;
+
+                const typingArea = document.querySelector(".typing-area");
+                const areaRect = typingArea.getBoundingClientRect();
+                const charRect = activeChar.getBoundingClientRect();
+                const currentMarginTop = parseInt(typingTextContainer.style.marginTop || '0');
+                const lineHeight = charRect.height;
+
+                if (charRect.bottom > areaRect.bottom) {
+                    typingTextContainer.style.marginTop = `${currentMarginTop - lineHeight}px`;
+                }
+                else if (charRect.top < areaRect.top) {
+                    typingTextContainer.style.marginTop = `${currentMarginTop + lineHeight}px`;
+                }
+            }
+
+            function startTimer() {
+                if (timeLeft > 0 && !isTyping) {
+                    isTyping = true;
+                    timer = setInterval(updateTimer, 1000);
+                    endTestBtn.style.display = 'inline-block';
+                }
+            }
+
+            function updateTimer() {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    timerEl.innerText = timeLeft + 's';
+                    if (isTyping) updateStats();
+                } else {
+                    finishTest();
+                }
+            }
+
+            function pauseTest() {
+                if (!isTyping || timeLeft <= 0 || container.classList.contains('test-finished')) return;
+                clearInterval(timer);
+                isTyping = false;
+                pauseOverlay.classList.add('visible');
+            }
+
+            function resumeTest() {
+                if (container.classList.contains('test-finished')) return;
+                pauseOverlay.classList.remove('visible');
+            }
+
+            function finishTest() {
+                clearInterval(timer);
+                isTyping = false;
+                inputField.disabled = true;
+                pauseOverlay.classList.remove('visible'); // <-- FIX: Explicitly hide overlay
+
+                displayFinalResults();
+
+                container.classList.add('test-finished');
+                resultsTitleEl.style.display = 'block';
+                endTestBtn.style.display = 'none';
+
+                newTestBtn.focus();
+            }
+
+            // IMPROVEMENT: New comprehensive results calculation and display function
+            function displayFinalResults() {
+                // 1. --- CALCULATE ALL METRICS ---
+
+                // Characters
+                const correctCharsCount = document.querySelectorAll('.typing-text .correct').length;
+                const incorrectSpans = document.querySelectorAll('.typing-text .incorrect');
+                const incorrectCharsCount = incorrectSpans.length;
+                const totalChars = correctCharsCount + incorrectCharsCount;
+
+                // Time
+                const timeElapsed = maxTime - timeLeft;
+                const timeElapsedInMinutes = timeElapsed / 60;
+
+                // Accuracy
+                const accuracy = totalChars > 0 ? Math.round((correctCharsCount / totalChars) * 100) : 100;
+
+                // WPM (based on correct characters)
+                const wpm = (timeElapsedInMinutes > 0) ? Math.round((correctCharsCount / 5) / timeElapsedInMinutes) : 0;
+
+                // Words
+                let correctWordsCount = 0;
+                let incorrectWordsCount = 0;
+                const words = typingTextContainer.querySelectorAll('.word');
+                const charactersArray = Array.from(characters);
+                words.forEach(word => {
+                    const firstLetterOfWord = word.querySelector('span');
+                    if (!firstLetterOfWord) return;
+
+                    if (charactersArray.indexOf(firstLetterOfWord) < charIndex) {
+                        const hasError = word.querySelector('.incorrect');
+                        if (hasError) {
+                            incorrectWordsCount++;
+                        } else {
+                            correctWordsCount++;
+                        }
+                    }
+                });
+
+                // Problematic Keys
+                const problemKeysMap = {};
+                incorrectSpans.forEach(span => {
+                    let key = span.textContent;
+                    if (key === ' ') key = 'space'; // Normalize space character
+                    problemKeysMap[key] = (problemKeysMap[key] || 0) + 1;
+                });
+                const sortedProblemKeys = Object.entries(problemKeysMap).sort(([, a], [, b]) => b - a);
+
+
+                // 2. --- UPDATE THE DOM ---
+                document.querySelector('#wpm-result .value').innerText = wpm < 0 ? 0 : wpm;
+                document.querySelector('#accuracy-result .value').innerText = accuracy + '%';
+                document.querySelector('#time-taken-result .value').innerText = `${timeElapsed}s`;
+                document.querySelector('#total-chars-result .value').innerText = totalChars;
+                document.querySelector('#correct-chars-result .value').innerText = correctCharsCount;
+                document.querySelector('#incorrect-chars-result .value').innerText = incorrectCharsCount;
+                document.querySelector('#correct-words-result .value').innerText = correctWordsCount;
+                document.querySelector('#incorrect-words-result .value').innerText = incorrectWordsCount;
+
+                const problemKeysContainer = document.querySelector('#problem-keys-result .value');
+                problemKeysContainer.innerHTML = ''; // Clear previous
+                if (sortedProblemKeys.length > 0) {
+                    sortedProblemKeys.slice(0, 5).forEach(([key]) => { // Display top 5 keys
+                        const keyElement = document.createElement('span');
+                        keyElement.className = 'key';
+                        keyElement.textContent = key;
+                        problemKeysContainer.appendChild(keyElement);
+                    });
+                } else {
+                    problemKeysContainer.innerText = 'None';
+                }
+            }
+
+            function handleTimeChange(e) {
+                if (e.target.tagName === 'BUTTON') {
+                    maxTime = parseInt(e.target.dataset.time, 10);
+                    timeControls.querySelector('.active').classList.remove('active');
+                    e.target.classList.add('active');
+                    resetTest();
+                }
+            }
+
+            function updateStats() {
+                // This updates the LIVE stats during the test
+                const correctCharsCount = document.querySelectorAll('.typing-text .correct').length;
+                const incorrectCharsCount = document.querySelectorAll('.typing-text .incorrect').length;
+
+                correctCharsLiveEl.innerText = correctCharsCount;
+                incorrectCharsLiveEl.innerText = incorrectCharsCount;
+
+                let totalTyped = correctCharsCount + incorrectCharsCount;
+                let accuracy = totalTyped > 0 ? Math.round((correctCharsCount / totalTyped) * 100) : 100;
+                accuracyEl.innerText = accuracy + '%';
+
+                let timeElapsedInMinutes = (maxTime - timeLeft) / 60;
+                if (timeElapsedInMinutes > 0) {
+                    let wpm = Math.round((correctCharsCount / 5) / timeElapsedInMinutes);
+                    wpmEl.innerText = wpm < 0 ? 0 : wpm;
+                } else {
+                    wpmEl.innerText = 0;
+                }
+            }
+
+            // --- Event Listeners ---
+            inputField.addEventListener("input", handleTyping);
+            inputField.addEventListener("focus", resumeTest);
+            inputField.addEventListener("blur", pauseTest);
+            newTestBtn.addEventListener("click", resetTest);
+            timeControls.addEventListener("click", handleTimeChange);
+            endTestBtn.addEventListener("click", finishTest);
+
+            inputField.addEventListener('paste', (e) => e.preventDefault());
+
+            newTestBtn.addEventListener('keydown', (e) => {
+                if (container.classList.contains('test-finished') && e.key === ' ') {
+                    e.preventDefault();
+                }
+            });
+
+            inputField.addEventListener('keydown', (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                }
+            });
+
+            // --- Initial Load ---
+            resetTest();
+        })();
+    </script>
+    <script>
+        // Hamburger Menu Logic
+        (function () {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.main-nav');
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('is-active');
+                navMenu.classList.toggle('is-active');
+                const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+                hamburger.setAttribute('aria-expanded', !isExpanded);
+            });
+        })();
+
+        // Dynamic Copyright Year
+        (function () {
+            document.getElementById('copyright-year').textContent = new Date().getFullYear();
+        })();
+    </script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9D7NV0FFT4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9D7NV0FFT4');
+</script>
+
+</body>
+
+</html>
